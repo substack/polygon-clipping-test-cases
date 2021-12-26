@@ -40,10 +40,15 @@ function run(stats, data, file) {
     try {
       var x = polygonEq(lib.m.exclude(data.A, data.B) || [], data.exclude) ? 'OK  ' : 'FAIL'
     } catch (e) { x = 'ERR ' }
-    console.log(`${file.padEnd(8)}  ${lib.name.padStart(8)}  u:${u}  i:${i}  d:${d}  x:${x}`)
+    var npass = 0, ntotal = 0
     ;[u,i,d,x].forEach(q => {
-      stats[lib.name][q.trim().toLowerCase()]++
+      var k = q.trim().toLowerCase()
+      if (k === 'ok') npass++
+      ntotal++
+      stats[lib.name][k]++
     })
+    var pc = (100*npass/ntotal).toFixed(0).padStart(3)
+    console.log(`${file.padEnd(8)}  ${lib.name.padStart(8)}  u:${u}  i:${i}  d:${d}  x:${x}  ${pc}%`)
   })
   console.log()
 }
