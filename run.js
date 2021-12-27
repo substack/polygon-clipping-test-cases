@@ -16,6 +16,7 @@ libs.forEach(lib => {
   stats[lib.name] = { ok: 0, fail: 0, err: 0 }
 })
 files.forEach(file => {
+  if (/^\./.test(file) || !/\.json$/.test(file)) return
   var src = fs.readFileSync(path.join(__dirname, 'data', file), 'utf8')
   var data = JSON.parse(src)
   run(stats, data, file)
