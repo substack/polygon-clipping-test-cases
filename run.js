@@ -24,24 +24,46 @@ files.forEach(file => {
 libs.forEach(lib => {
   var s = stats[lib.name]
   var pr = (s.ok / (s.ok+s.fail+s.err) * 100).toFixed(1).padStart(5)
-  console.log(`total  ${lib.name.padStart(8)}  ${s.ok} ok  ${s.fail} fail  ${s.err} err  ${pr}%`)
+  console.log([
+    'total',
+    lib.name.padStart(8),
+    `${String(s.ok).padStart(4)} ok`,
+    `${String(s.fail).padStart(4)} fail`,
+    `${String(s.err).padStart(4)} err`,
+    `${pr}%`
+  ].join('  '))
 })
 
 function run(stats, data, file) {
+  var epsilon = 1e-4
+  var ds = { union: [], intersect: [], difference: [], exclude: [] }
+  Object.keys(data).forEach(key => {
+    if (/^union/.test(key)) ds.union.push(data[key])
+    if (/^intersect/.test(key)) ds.intersect.push(data[key])
+    if (/^difference/.test(key)) ds.difference.push(data[key])
+    if (/^exclude/.test(key)) ds.exclude.push(data[key])
+  })
   libs.forEach(lib => {
-    try {
-      var u = polygonEq(lib.m.union(data.A, data.B) || [], data.union) ? 'OK  ' : 'FAIL'
-    } catch (e) { u = 'ERR ' }
-    try {
-      var i = polygonEq(lib.m.intersect(data.A, data.B) || [], data.intersect) ? 'OK  ' : 'FAIL'
-    } catch (e) { i = 'ERR ' }
-    try {
-      var d = polygonEq(lib.m.difference(data.A, data.B) || [], data.difference) ? 'OK  ' : 'FAIL'
-    } catch (e) { d = 'ERR ' }
-    try {
-      var x = polygonEq(lib.m.exclude(data.A, data.B) || [], data.exclude) ? 'OK  ' : 'FAIL'
-    } catch (e) { x = 'ERR ' }
+    var result = { union: 'FAIL', intersect: 'FAIL', difference: 'FAIL', exclude: 'FAIL' }
+    Object.keys(result).forEach(key => {
+      var r = 'FAIL'
+      try {
+        var d = lib.m[key](data.A, data.B) || []
+      } catch (e) {
+        r = 'ERR '
+      }
+      if (r !== 'ERR ') {
+        for (var i = 0; i < ds[key].length; i++) {
+          if (polygonEq(d, ds[key][i], epsilon)) {
+            r = 'OK  '
+            break
+          }
+        }
+      }
+      result[key] = r
+    })
     var npass = 0, ntotal = 0
+    var u = result.union, i = result.intersect, d = result.difference, x = result.exclude
     ;[u,i,d,x].forEach(q => {
       var k = q.trim().toLowerCase()
       if (k === 'ok') npass++
