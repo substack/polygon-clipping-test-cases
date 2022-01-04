@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "polygon-eq": "^1.0.3"
+    "martinez-polygon-clipping": "^0.7.1",
+    "pclip": "^1.4.0",
+    "polybooljs": "^1.2.0",
+    "polygon-clipping": "^0.15.3"
+  },
+  "scripts": {
+    "start": "node run.js"
+  }
+}
