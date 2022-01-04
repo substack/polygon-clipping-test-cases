@@ -52,7 +52,7 @@ function run(stats, data, file) {
       } catch (e) {
         r = 'ERR '
       }
-      if (r !== 'ERR ') {
+      if (d && r !== 'ERR ') {
         for (var i = 0; i < ds[key].length; i++) {
           if (polygonEq(d, ds[key][i], epsilon)) {
             r = 'OK  '
